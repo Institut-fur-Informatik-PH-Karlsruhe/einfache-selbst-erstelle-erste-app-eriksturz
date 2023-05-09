@@ -1,9 +1,9 @@
+import 'dart:js_util';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-
 
 void main() {
   runApp(MyApp());
@@ -29,21 +29,29 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-    var number1 = Random().nextInt(90); //Zufalls-Summand 1
-    var number2 = Random().nextInt(90); //Zufalls-Summand 2
-    String feedback = '';
-    
-    //Globale Variable zum Speichern der Texteingabe
-    TextEditingController eingabe = TextEditingController();
+  var number1 = Random().nextInt(90); //Zufalls-Summand 1
+  var number2 = Random().nextInt(90); //Zufalls-Summand 2
+  String feedback = '';
 
-  void check(){
+  void getNext() {
+    if (feedback == 'richtig') {
+      number1 = Random().nextInt(90);
+      number2 = Random().nextInt(90);
+    }
+    notifyListeners();
+  }
+
+  //Globale Variable zum Speichern der Texteingabe
+  TextEditingController eingabe = TextEditingController();
+
+  void check() {
     //Eingabe in summe_eingabe sichern
-    var summe_eingabe = int.parse(eingabe.text); //Typenumwandlung von String aus Textfeld nach Integer
+    var summe_eingabe = int.parse(
+        eingabe.text); //Typenumwandlung von String aus Textfeld nach Integer
     var summe_aufgabe = number1 + number2;
-    
 
     //prüfen, ob die Eingabe mit dem gerechneten Ergebnis übereinstimmt
-    if(summe_eingabe == summe_aufgabe) {
+    if (summe_eingabe == summe_aufgabe) {
       feedback = "richtig";
     } else {
       feedback = "falsch";
@@ -54,72 +62,73 @@ class MyAppState extends ChangeNotifier {
 
 class MyHomePage extends StatelessWidget {
   @override
-
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    
 
     return Scaffold(
+      //Titelleiste
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text("Übung zur Addition"),
+        backgroundColor: Colors.green,
+      ),
 
-        //Titelleiste
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text("Übung zur Addition"),
-          backgroundColor: Colors.green,
-        ),
-        
+      body: Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            //Rechenaufgabe (verkettete Strings)
+            Text(
+              appState.number1.toString() +
+                  ' + ' +
+                  appState.number2.toString() +
+                  ' =',
+              style: TextStyle(fontSize: 60),
+            ),
 
-        
-        body: Container(
-
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            
-            
-            children: [
-              //Rechenaufgabe (verkettete Strings)
-              Text(appState.number1.toString()+' + '+appState.number2.toString()+' =',style: TextStyle(fontSize: 60),),
-
-              //Lösungseingabe (Textfeld + Button in einer Row)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly, //verteile auf Bildschirmbreite
-                children: [
-                
+            //Lösungseingabe (Textfeld + Button in einer Row)
+            Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.spaceEvenly, //verteile auf Bildschirmbreite
+              children: [
                 //Textfeld Eingabe
-                Expanded(child:
-                  TextField(
+                Expanded(
+                  child: TextField(
                     controller: appState.eingabe,
                     decoration: InputDecoration(
-                    border: UnderlineInputBorder(),
-                    hintText: 'Lösung',
+                      border: UnderlineInputBorder(),
+                      hintText: 'Lösung',
+                    ),
                   ),
-                  ),  
                 ),
 
                 //Antwortbutton
                 ElevatedButton(
                   onPressed: () {
-                  appState.check();
+                    appState.check();
+                    appState.getNext();
                   },
                   child: Text('prüfen'),
                 ),
-                ],
-                
-              ),
-
-              //weitere Row für Rückmeldung ob richtig oder falsch
-              Row(
-                
-                mainAxisAlignment: MainAxisAlignment.center, //am Bildschirm zentrieren
-
-                children: [
-                Text(appState.feedback,style: TextStyle(fontSize: 50,color: Colors.black),), //Rückgabetext
               ],
-              )
-            ],
-          ),
+            ),
+
+            //weitere Row für Rückmeldung ob richtig oder falsch
+            Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.center, //am Bildschirm zentrieren
+
+              children: [
+                Text(
+                  appState.feedback,
+                  style: TextStyle(fontSize: 50, color: Colors.black),
+                ), //Rückgabetext
+              ],
+            )
+          ],
         ),
-        );
+      ),
+    );
   }
 }
